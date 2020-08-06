@@ -12,11 +12,13 @@ import (
 
 // StartClient is the entry point for any client
 func StartClient() {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Starting up chat with remote computer...")
 	inputChann := make(chan []byte)
-	// recvChan := make(chan []byte)
+	defer close(inputChann)
+
+	fmt.Println("Starting up chat with remote computer...")
 	go startUDPPunching(inputChann)
+
+	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("--->")
 		message, _ := reader.ReadString('\n')
@@ -27,13 +29,13 @@ func StartClient() {
 func startUDPPunching(inputChann chan []byte) {
 	UDPConn, err := net.ListenUDP("udp", &net.UDPAddr{})
 
-	if err != nil { // shouldn't ever happen
+	if err != nil { //should never happen, sanity check
 		fmt.Println("Issue opening udp socket.")
 		panic(err)
 	}
 	clientAddress := resovleRemoteClientAddress(UDPConn)
-	go sendToRemoteClient(UDPConn, clientAddress, inputChann) // punch hole in nat table
-	go recieve(UDPConn)                                       // listen for incoming from opened port
+	go send(UDPConn, clientAddress, inputChann)
+	go recieve(UDPConn)
 
 }
 
@@ -45,7 +47,7 @@ func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
 
 	for {
 		data := make([]byte, 1024)
-		fmt.Println(UDPConn.LocalAddr().String())
+		fmt.Println(UDPConn.LocalAddr().String()) // debug
 		_, address, _ := UDPConn.ReadFromUDP(data)
 		data = bytes.Trim(data, "\x00")
 		if address.IP.String() == serverAddr.IP.String() {
@@ -59,7 +61,7 @@ func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
 	}
 }
 
-func sendToRemoteClient(UDPConn *net.UDPConn, remote *net.UDPAddr, inputChann chan []byte) {
+func send(UDPConn *net.UDPConn, remote *net.UDPAddr, inputChann chan []byte) {
 	go func() { //keep alive the udp punching
 		empty := []byte{}
 		for {
