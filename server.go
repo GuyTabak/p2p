@@ -1,0 +1,6 @@
+package main
+
+// // ServerIP ...
+const ServerIP = "IP" // perhaps take it as args from cmd
+// ServerPort ...
+const ServerPort = 8000
