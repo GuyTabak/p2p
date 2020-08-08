@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"net"
+	"strconv"
 )
 
 // Clients ...
 type Clients struct {
-	registered map[string]*net.UDPAddr // Need to change to IP:PORT
+	registered map[string]bool // Need to change to IP:PORT
 }
 
 func startServer() {
@@ -18,7 +19,7 @@ func startServer() {
 		panic(err)
 	}
 
-	clients := &Clients{registered: make(map[string]*net.UDPAddr)}
+	clients := &Clients{registered: make(map[string]bool)}
 	for {
 		buffer := make([]byte, 1024)
 		_, addr, err := sock.ReadFromUDP(buffer)
@@ -30,17 +31,16 @@ func startServer() {
 
 }
 
-func handleConnection(addr *net.UDPAddr, serverSock *net.UDPConn, clients *Clients) {
-	if _, ok := clients.registered[addr.IP.String()]; !ok {
-		clients.registered[addr.IP.String()+":"+string(addr.Port)] = addr
+func handleConnection(connectingClient *net.UDPAddr, serverSock *net.UDPConn, clients *Clients) {
+	stringAddress := connectingClient.String() + ":" + strconv.Itoa(connectingClient.Port) // ip:port
+	if _, ok := clients.registered[stringAddress]; !ok {
+		clients.registered[stringAddress] = true // if is useless (might save lookup, or perhaps adds readability)
 	}
 
-	for addrStr, addr := range clients.registered {
-		if addrStr != addr.IP.String()+":"+string(addr.Port) {
-			serverSock.WriteToUDP([]byte(addrStr), addr)
-			fmt.Printf("Debug:\nSent to cleint %v remote client %v", addr, addr)
-		} else {
-			fmt.Printf("Debug.")
+	for address := range clients.registered {
+		if address != stringAddress {
+			serverSock.WriteToUDP([]byte(address), connectingClient) // Send any client which is not the connecting one
+			fmt.Printf("Debug:\nSent to client %v remote client %v", stringAddress, address)
 		}
 	}
 }

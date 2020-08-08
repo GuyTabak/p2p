@@ -45,9 +45,9 @@ func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
 
 	for { //send 'keep alive' wait loop
 		data := make([]byte, 1024)
-		UDPConn.WriteTo([]byte("hey"), serverAddr)
+		UDPConn.WriteTo([]byte("Register request."), serverAddr)
 		UDPConn.SetReadDeadline(time.Now().Add(2 * time.Second))
-		_, address, err := UDPConn.ReadFromUDP(data)
+		_, address, _ := UDPConn.ReadFromUDP(data)
 		if err != nil {
 			continue // wait for server response
 		}
