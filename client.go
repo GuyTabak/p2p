@@ -42,15 +42,17 @@ func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
 	if err != nil {
 		panic(err)
 	}
-	UDPConn.WriteTo([]byte{}, serverAddr)
+	UDPConn.WriteTo([]byte("hey"), serverAddr)
 	for {
 		data := make([]byte, 1024)
-		fmt.Println(UDPConn.LocalAddr().String())
-		_, address, _ := UDPConn.ReadFromUDP(data)
-		data = bytes.Trim(data, "\x00")
-		if address.IP.String() == serverAddr.IP.String() {
-			fmt.Println("Recieved remote client ip: " + string(data))
-			UDPAddr, err := net.ResolveUDPAddr("udp", string(data))
+		UDPConn.SetReadDeadline(time.Now().Add(2 * time.Second))
+		_, address, err := UDPConn.ReadFromUDP(data)
+		if err != nil {
+			continue // wait for server response
+		}
+
+		if address != nil && address.IP.String() == serverAddr.IP.String() {
+			UDPAddr, err := net.ResolveUDPAddr("udp", string(bytes.Trim(data, "\x00")))
 			if err != nil {
 				continue
 			}

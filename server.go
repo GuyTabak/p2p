@@ -22,7 +22,7 @@ func startServer() {
 	for {
 		buffer := make([]byte, 1024)
 		_, addr, err := sock.ReadFromUDP(buffer)
-		if err != nil {
+		if err == nil {
 			go handleConnection(addr, sock, clients)
 		}
 		fmt.Println("Recieved :", string(buffer))
@@ -31,8 +31,8 @@ func startServer() {
 }
 
 func handleConnection(addr *net.UDPAddr, serverSock *net.UDPConn, clients *Clients) {
-	if val, ok := clients.registered[addr.IP.String()]; !ok {
-		clients.registered[addr.IP.String()] = val
+	if _, ok := clients.registered[addr.IP.String()]; !ok {
+		clients.registered[addr.IP.String()] = addr
 	}
 
 	for ip, addr := range clients.registered {
