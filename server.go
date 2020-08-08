@@ -32,12 +32,12 @@ func startServer() {
 
 func handleConnection(addr *net.UDPAddr, serverSock *net.UDPConn, clients *Clients) {
 	if _, ok := clients.registered[addr.IP.String()]; !ok {
-		clients.registered[addr.IP.String()] = addr
+		clients.registered[addr.IP.String()+":"+string(addr.Port)] = addr
 	}
 
-	for ip, addr := range clients.registered {
-		if ip != addr.IP.String() {
-			serverSock.WriteToUDP([]byte(ip+":"+string(addr.Port)), addr)
+	for addrStr, addr := range clients.registered {
+		if addrStr != addr.IP.String()+":"+string(addr.Port) {
+			serverSock.WriteToUDP([]byte(addrStr), addr)
 			fmt.Printf("Debug:\nSent to cleint %v remote client %v", addr, addr)
 		} else {
 			fmt.Printf("Debug.")
