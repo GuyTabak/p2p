@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 	"time"
 )
 
-// StartClient is the entry point for any client
-func StartClient() {
+func startClient() {
 	inputChann := make(chan []byte)
 	defer close(inputChann)
 
@@ -27,7 +25,7 @@ func StartClient() {
 }
 
 func startUDPPunching(inputChann chan []byte) {
-	UDPConn, err := net.ListenUDP("udp", &net.UDPAddr{})
+	UDPConn, err := net.ListenUDP("udp", &net.UDPAddr{}) //bind socket to random port, on udp layer
 
 	if err != nil { //should never happen, sanity check
 		fmt.Println("Issue opening udp socket.")
@@ -40,19 +38,19 @@ func startUDPPunching(inputChann chan []byte) {
 }
 
 func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
-	serverAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5000")
+	serverAddr, err := net.ResolveUDPAddr("udp", "3.22.98.195:5000") // UPDATE SERVER IP HERE
 	if err != nil {
 		panic(err)
 	}
-
+	UDPConn.WriteTo([]byte{}, serverAddr)
 	for {
 		data := make([]byte, 1024)
-		fmt.Println(UDPConn.LocalAddr().String()) // debug
+		fmt.Println(UDPConn.LocalAddr().String())
 		_, address, _ := UDPConn.ReadFromUDP(data)
 		data = bytes.Trim(data, "\x00")
 		if address.IP.String() == serverAddr.IP.String() {
-			fmt.Println(string(data))
-			UDPAddr, err := net.ResolveUDPAddr("udp", strings.TrimRight(string(data), "\n"))
+			fmt.Println("Recieved remote client ip: " + string(data))
+			UDPAddr, err := net.ResolveUDPAddr("udp", string(data))
 			if err != nil {
 				continue
 			}
