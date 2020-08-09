@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net"
-	"strconv"
 )
 
 // Clients ...
@@ -32,7 +31,7 @@ func startServer() {
 }
 
 func handleConnection(connectingClient *net.UDPAddr, serverSock *net.UDPConn, clients *Clients) {
-	stringAddress := connectingClient.String() + ":" + strconv.Itoa(connectingClient.Port) // ip:port
+	stringAddress := connectingClient.String() // ip:port
 	if _, ok := clients.registered[stringAddress]; !ok {
 		clients.registered[stringAddress] = true // if is useless (might save lookup, or perhaps adds readability)
 	}

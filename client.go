@@ -38,14 +38,14 @@ func startUDPPunching(inputChann chan []byte) {
 }
 
 func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
-	serverAddr, err := net.ResolveUDPAddr("udp", "3.22.98.195:5000") // UPDATE SERVER IP HERE
+	serverAddr, err := net.ResolveUDPAddr("udp", ":5000") // UPDATE SERVER IP HERE
 	if err != nil {
 		panic(err)
 	}
-
+	defer UDPConn.SetReadDeadline(time.Time{})
 	for { //send 'keep alive' wait loop
 		data := make([]byte, 1024)
-		UDPConn.WriteTo([]byte("Register request."), serverAddr)
+		UDPConn.WriteTo([]byte("Registration request"), serverAddr)
 		UDPConn.SetReadDeadline(time.Now().Add(2 * time.Second))
 		_, address, _ := UDPConn.ReadFromUDP(data)
 		if err != nil {
@@ -63,17 +63,15 @@ func resovleRemoteClientAddress(UDPConn *net.UDPConn) *net.UDPAddr {
 }
 
 func send(UDPConn *net.UDPConn, remote *net.UDPAddr, inputChann chan []byte) {
-	go func() { //keep alive the udp punching
-		empty := []byte{}
+	go func() { //keep alive
 		for {
-			UDPConn.WriteTo(empty, remote)
-			time.Sleep(5)
+			UDPConn.WriteTo([]byte{}, remote)
+			time.Sleep(5 * time.Second)
 		}
 	}()
 
 	for {
 		message := <-inputChann
-		fmt.Println("Sent following message to remote client: ", string(message))
 		UDPConn.WriteTo(message, remote)
 	}
 }
@@ -81,7 +79,11 @@ func send(UDPConn *net.UDPConn, remote *net.UDPAddr, inputChann chan []byte) {
 func recieve(UDPConn *net.UDPConn) {
 	for { // Receive loop
 		buffer := make([]byte, 1024)
-		_, addr, _ := UDPConn.ReadFromUDP(buffer)
-		fmt.Printf("Recieved message: %v from remote %v.", string(buffer), addr.IP.String())
+		_, addr, err := UDPConn.ReadFromUDP(buffer) // the set timeout might cause an issue
+		if err == nil {
+			fmt.Printf("Recieved message: %v from remote %v.\n", string(buffer), addr.String())
+		} else {
+			fmt.Println(err)
+		}
 	}
 }
