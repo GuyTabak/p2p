@@ -19,9 +19,12 @@ POC results:
     the router is blocking the communication.
 
 Options:
+
     1. Might be possible to guess the next avilable port if there is a common policy for NAT routers.
     Hoever, it will probably will prove to be difficuly in multi-client p2p situation.
+
     2. Relay the communication through a server, however I will try to avoid this path as much as possible as there should be working solution.
+
     3. One of the artivle below may provide a solution.
 
 
