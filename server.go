@@ -5,41 +5,38 @@ import (
 	"net"
 )
 
-// Clients ...
-type Clients struct {
-	registered map[string]bool // Need to change to IP:PORT
-}
-
 func startServer() {
-	UDPListenAddr := &net.UDPAddr{Port: 5000}
-	sock, err := net.ListenUDP("udp", UDPListenAddr)
+	UDPListenAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5000")
+	conn, err := net.ListenUDP("udp", UDPListenAddr)
 	if err != nil {
 		fmt.Println("Couldn't open server at port 5000")
 		panic(err)
 	}
 
-	clients := &Clients{registered: make(map[string]bool)}
+	clients := &clients{registered: make(map[string]peer)}
 	for {
 		buffer := make([]byte, 1024)
-		_, addr, err := sock.ReadFromUDP(buffer)
-		if err == nil {
-			go handleConnection(addr, sock, clients)
+		_, addr, err := conn.ReadFromUDP(buffer)
+		if err == nil { //message received succcessfully
+			connectingPeer := peer{}
+			if deserialize(buffer, &connectingPeer) == nil { //message format is correct
+				connectingPeer.ExternalAddr = *addr
+				go handleConnection(conn, clients, connectingPeer)
+			}
 		}
-		fmt.Println("Recieved :", string(buffer))
+		fmt.Println("Recieved message from: ", addr.String())
 	}
-
 }
 
-func handleConnection(connectingClient *net.UDPAddr, serverSock *net.UDPConn, clients *Clients) {
-	stringAddress := connectingClient.String() // ip:port
-	if _, ok := clients.registered[stringAddress]; !ok {
-		clients.registered[stringAddress] = true // if is useless (might save lookup, or perhaps adds readability)
+func handleConnection(serverSock *net.UDPConn, clients *clients, connectingPeer peer) {
+	connectingPeerAddr := connectingPeer.ExternalAddr.String()
+	if _, ok := clients.registered[connectingPeerAddr]; !ok {
+		clients.registered[connectingPeerAddr] = connectingPeer // if is useless (might save lookup, or perhaps adds readability)
 	}
 
 	for address := range clients.registered {
-		if address != stringAddress {
-			serverSock.WriteToUDP([]byte(address), connectingClient) // Send any client which is not the connecting one
-			fmt.Printf("Debug:\nSent to client %v remote client %v", stringAddress, address)
+		if address != connectingPeerAddr {
+			serverSock.WriteToUDP(serialize(clients.registered[address]), &connectingPeer.ExternalAddr) // send any client which is not the connecting one
 		}
 	}
 }
