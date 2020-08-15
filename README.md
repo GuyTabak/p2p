@@ -2,13 +2,11 @@
 Light data transfer tool that allows clients behind NAT to communicate directly without(constant) 3rd party server - WIP
 
 
-POC  - UDP hole punching
-
+POC  - UDP hole punching  
     client:
         - register to server
         - wait for peer access point
-        - establish connection
-
+        - establish connection  
     server:
         - wait for client regestration
         - once two clients registered, forward them regestration data
@@ -28,8 +26,7 @@ Options:
 
 
 
-Related articales:
-
+Related articles:  
     https://pdos.csail.mit.edu/papers/p2pnat.pdf, might remove requirment of 3rd party server.
     http://www1.cs.columbia.edu/~salman/publications/skype1_4.pdf
     https://arxiv.org/ftp/cs/papers/0412/0412017.pdf
