@@ -29,11 +29,11 @@ Options:
 
 
 Related articales:
-    - Read https://pdos.csail.mit.edu/papers/p2pnat.pdf, might remove requirment of 3rd party server.
-    - http://www1.cs.columbia.edu/~salman/publications/skype1_4.pdf
-    - https://arxiv.org/ftp/cs/papers/0412/0412017.pdf
-    - http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.455.3700&rep=rep1&type=pdf
-    - https://www.researchgate.net/publication/224062560_Research_on_Symmetric_NAT_Traversal_in_P2P_applications
+    https://pdos.csail.mit.edu/papers/p2pnat.pdf, might remove requirment of 3rd party server.
+    http://www1.cs.columbia.edu/~salman/publications/skype1_4.pdf
+    https://arxiv.org/ftp/cs/papers/0412/0412017.pdf
+    http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.455.3700&rep=rep1&type=pdf
+    https://www.researchgate.net/publication/224062560_Research_on_Symmetric_NAT_Traversal_in_P2P_applications
 
 
     * https://patents.google.com/patent/US9497160B1/en some patent, see that I am not sued by mistake  ^^
