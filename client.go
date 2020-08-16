@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -36,9 +37,11 @@ func startUDPPunching(inputChann chan []byte) {
 }
 
 func resovleRemoteClientAddress(UDPConn *net.UDPConn) peer {
-	UDPAddr, _ := net.ResolveUDPAddr("udp", UDPConn.LocalAddr().String())
-	encodedAddr := serialize(peer{InternalAddr: *UDPAddr})
+	UDPIP := getOutboundIP().IP.String()
+	UDPPort := strconv.Itoa(UDPConn.LocalAddr().(*net.UDPAddr).Port)
 
+	UDPAddr, _ := net.ResolveUDPAddr("udp", UDPIP+":"+UDPPort)
+	encodedAddr := serialize(peer{InternalAddr: *UDPAddr})
 	serverAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5000") // TODO: config
 	if err != nil {
 		panic(err)

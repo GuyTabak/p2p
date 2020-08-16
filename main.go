@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	flagMode := flag.String("mode", "server", "start in client or server mode")
+	flagMode := flag.String("mode", "client", "start in client or server mode")
 	flag.Parse()
 	if strings.ToLower(*flagMode) == "server" {
 		startServer()

@@ -6,7 +6,7 @@ import (
 )
 
 func startServer() {
-	UDPListenAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:5000")
+	UDPListenAddr, err := net.ResolveUDPAddr("udp", ":5000")
 	conn, err := net.ListenUDP("udp", UDPListenAddr)
 	if err != nil {
 		fmt.Println("Couldn't open server at port 5000")
