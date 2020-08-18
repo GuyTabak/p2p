@@ -1,12 +1,12 @@
 package main
 
-import "net"
+import (
+	"net"
+
+	"github.com/google/uuid"
+)
 
 type peer struct {
-	InternalAddr net.UDPAddr
-	ExternalAddr net.UDPAddr
-}
-
-type clients struct {
-	registered map[string]peer
+	id   uuid.UUID
+	addr net.UDPAddr
 }
